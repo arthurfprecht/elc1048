@@ -6,9 +6,9 @@
  */
 
 /**
- * \mainpage User Application template doxygen documentation
+ * \mainpage Sistema operacional multitarefas
  *
- * \par Empty user application template
+ * \par Exemplso de tarefas
  *
  * Este arquivo contem exemplos diversos de tarefas e 
  * funcionalidades de um sistema operacional multitarefas.
@@ -17,8 +17,8 @@
  * \par Conteudo
  *
  * -# Inclui funcoes do sistema multitarefas (atraves de multitarefas.h)
- * -# Inicizalizao do processador e do sistema multitarefas
- * -# Criacao de tarefas de demonstracao
+ * -# Inicialização do processador e do sistema multitarefas
+ * -# Criação de tarefas de demonstração
  *
  */
 
@@ -32,15 +32,15 @@
 /*
  * Prototipos das tarefas
  */
+
 void tarefa_1(void);
 void tarefa_2(void);
 void tarefa_3(void);
 void tarefa_4(void);
 void tarefa_5(void);
 void tarefa_6(void);
-void tarefa_7(void);
-void tarefa_8(void);
-void tarefa_9(void);
+void configure_extint_channel(void);void configure_extint_callbacks(void);
+void extint_detection_callback(void);
 
 /*
  * Configuracao dos tamanhos das pilhas
@@ -51,29 +51,25 @@ void tarefa_9(void);
 #define TAM_PILHA_4			(TAM_MINIMO_PILHA + 24)
 #define TAM_PILHA_5			(TAM_MINIMO_PILHA + 24)
 #define TAM_PILHA_6			(TAM_MINIMO_PILHA + 24)
-#define TAM_PILHA_7			(TAM_MINIMO_PILHA + 24)
-#define TAM_PILHA_8			(TAM_MINIMO_PILHA + 24)
-#define TAM_PILHA_9			(TAM_MINIMO_PILHA + 24)
+
 #define TAM_PILHA_OCIOSA	(TAM_MINIMO_PILHA + 24)
 
 /*
  * Declaracao das pilhas das tarefas
  */
+
 uint32_t PILHA_TAREFA_1[TAM_PILHA_1];
 uint32_t PILHA_TAREFA_2[TAM_PILHA_2];
 uint32_t PILHA_TAREFA_3[TAM_PILHA_3];
 uint32_t PILHA_TAREFA_4[TAM_PILHA_4];
 uint32_t PILHA_TAREFA_5[TAM_PILHA_5];
 uint32_t PILHA_TAREFA_6[TAM_PILHA_6];
-uint32_t PILHA_TAREFA_7[TAM_PILHA_7];
-uint32_t PILHA_TAREFA_8[TAM_PILHA_8];
-uint32_t PILHA_TAREFA_9[TAM_PILHA_9];
+
 uint32_t PILHA_TAREFA_OCIOSA[TAM_PILHA_OCIOSA];
 
-void tarefaExcessivamenteLonga(uint32_t iteracao);
+uint32_t soma_contadores = 0, a=0, b=0, c=0, d=0, e=0;
 
-uint8_t denteDeSerra(uint8_t a);
-uint8_t triangular(uint8_t a);
+uint32_t timer_irq=0;
 
 /*
  * Funcao principal de entrada do sistema
@@ -82,15 +78,31 @@ int main(void)
 {
 	system_init();
 	
+	configure_extint_channel();
+	
+	configure_extint_callbacks();
+	
+	system_interrupt_enable_global();
+	
 	/* Criacao das tarefas */
 	/* Parametros: ponteiro, nome, ponteiro da pilha, tamanho da pilha, prioridade da tarefa */
-	
-	CriaTarefa(tarefa_7, "Tarefa 7", PILHA_TAREFA_7, TAM_PILHA_7, 2);
-	CriaTarefa(tarefa_8, "Tarefa 8", PILHA_TAREFA_8, TAM_PILHA_8, 1);
 		
+	CriaTarefa(tarefa_1, "Tarefa 1", PILHA_TAREFA_1, TAM_PILHA_1, 6);
+	
+	CriaTarefa(tarefa_2, "Tarefa 2", PILHA_TAREFA_2, TAM_PILHA_2, 5);
+	
+	CriaTarefa(tarefa_3, "Tarefa 3", PILHA_TAREFA_3, TAM_PILHA_3, 4);
+
+	CriaTarefa(tarefa_4, "Tarefa 4", PILHA_TAREFA_4, TAM_PILHA_4, 3);
+	
+	CriaTarefa(tarefa_5, "Tarefa 5", PILHA_TAREFA_5, TAM_PILHA_5, 2);
+	
+	CriaTarefa(tarefa_6, "Tarefa 6", PILHA_TAREFA_6, TAM_PILHA_6, 1);
+	
+	
 	/* Cria tarefa ociosa do sistema */
 	CriaTarefa(tarefa_ociosa,"Tarefa ociosa", PILHA_TAREFA_OCIOSA, TAM_PILHA_OCIOSA, 0);
-	
+
 	/* Configura marca de tempo */
 	ConfiguraMarcaTempo();   
 	
@@ -104,214 +116,94 @@ int main(void)
 }
 
 /* Tarefas de exemplo que usam funcoes para suspender/continuar as tarefas */
+
 void tarefa_1(void)
 {
-	volatile uint16_t a = 0;
 	for(;;)
 	{
-		a++;
-		port_pin_set_output_level(LED_0_PIN, LED_0_ACTIVE); /* Liga LED. */
-		TarefaContinua(2);
-	
+		/*
+		static char buffer_msg[50]; 
+		sprintf(buffer_msg, "Número de trocas de contexto: %ld \n", a+b+c+d+e);
+		*/
+		soma_contadores=a+b+c+d+e;
+		TarefaEspera(1000);
 	}
 }
 
 void tarefa_2(void)
 {
-	volatile uint16_t b = 0;
-	for(;;)
-	{
-		b++;
-		TarefaSuspende(2);	
-		port_pin_set_output_level(LED_0_PIN, !LED_0_ACTIVE); 	/* Turn LED off. */
-	}
-}
-
-/* Tarefas de exemplo que usam funcoes para suspender as tarefas por algum tempo (atraso/delay) */
-void tarefa_3(void)
-{
-	volatile uint16_t a = 0;
-	for(;;)
-	{
-		a++;	
-			
-		/* Desliga LED. */
-		port_pin_set_output_level(LED_0_PIN, !LED_0_ACTIVE);
-		tarefaExcessivamenteLonga(1000000);
-		
-		/* Liga LED. */
-		port_pin_set_output_level(LED_0_PIN, LED_0_ACTIVE);
-		tarefaExcessivamenteLonga(1000000);
-				
-		TarefaEspera(1); 	/* tarefa 1 se coloca em espera por 3 marcas de tempo (ticks) */
-	}
-}
-
-void tarefa_9(void)
-{
-	volatile uint16_t a = 0;
-
 	for(;;)
 	{
 		a++;
-		for (uint8_t num_piscadas = 0; num_piscadas<4; num_piscadas++)		
-		{
-			/* Liga LED. */
-			port_pin_set_output_level(LED_0_PIN, LED_0_ACTIVE);
-			tarefaExcessivamenteLonga(10000);
+		TarefaSuspende(2);
+	}
+}
 
-			
-			/* Desliga LED. */
-			port_pin_set_output_level(LED_0_PIN, !LED_0_ACTIVE);
-			tarefaExcessivamenteLonga(10000);
-		}		
-		TarefaEspera(1); 	/* tarefa 1 se coloca em espera por 3 marcas de tempo (ticks) */
+void tarefa_3(void)
+{
+	for(;;)
+	{
+		b++;
+		TarefaContinua(2);	
+		b++;
+		TarefaSuspende(3);
 	}
 }
 
 void tarefa_4(void)
 {
-	volatile uint16_t b = 0;
-	
 	for(;;)
 	{
-		b++;
-		TarefaEspera(5);	/* tarefa se coloca em espera por 5 marcas de tempo (ticks) */
+		c++;
+		TarefaContinua(3);
+		c++;
+		TarefaSuspende(4);
 	}
 }
-
-/* Tarefas de exemplo que usam funcoes de semaforo */
-
-semaforo_t SemaforoTeste = {0,0}; /* declaracao e inicializacao de um semaforo */
 
 void tarefa_5(void)
 {
-
-	uint32_t a = 0;			/* inicializações para a tarefa */
-	
 	for(;;)
 	{
-		
-		a++;				/* código exemplo da tarefa */
-
-		TarefaEspera(3); 	/* tarefa se coloca em espera por 3 marcas de tempo (ticks) */
-		
-		SemaforoLibera(&SemaforoTeste); /* tarefa libera semaforo para tarefa que esta esperando-o */
-		
+		d++;
+		TarefaContinua(4);
+		d++;
+		TarefaSuspende(5);
 	}
 }
 
-/* Exemplo de tarefa que usa semaforo */
 void tarefa_6(void)
 {
-	
-	uint32_t b = 0;	    /* inicializações para a tarefa */
-	
 	for(;;)
-	{
-		
-		b++; 			/* código exemplo da tarefa */
-		
-		SemaforoAguarda(&SemaforoTeste); /* tarefa se coloca em espera por semaforo */
-
+	{	
+		e++; 
+		TarefaContinua(5);
 	}
 }
 
-/* soluçao com buffer compartihado */
-/* Tarefas de exemplo que usam funcoes de semaforo */
 
-#define TAM_BUFFER 10
-uint8_t buffer[TAM_BUFFER]; /* declaracao de um buffer (vetor) ou fila circular */
-
-semaforo_t SemaforoCheio = {0,0}; /* declaracao e inicializacao de um semaforo */
-semaforo_t SemaforoVazio = {TAM_BUFFER,0}; /* declaracao e inicializacao de um semaforo */
-
-void tarefa_7(void)
+void configure_extint_channel(void)
 {
-
-	uint8_t a = 1;			/* inicializações para a tarefa */
-	uint8_t i = 0;
-	
-	for(;;)
-	{
-		SemaforoAguarda(&SemaforoVazio);
-		
-		/* buffer[i] = traingular(a++); */
-		buffer[i] = denteDeSerra(a++);
-		i = (i+1)%TAM_BUFFER;
-		
-		SemaforoLibera(&SemaforoCheio); /* tarefa libera semaforo para tarefa que esta esperando-o */
-		
-		TarefaEspera(10); 	/* tarefa se coloca em espera por 10 marcas de tempo (ticks), equivale a 10ms */		
-	}
-}
-
-/* Exemplo de tarefa que usa semaforo */
-void tarefa_8(void)
+	struct extint_chan_conf config_extint_chan;
+	extint_chan_get_config_defaults(&config_extint_chan);
+	config_extint_chan.gpio_pin = BUTTON_0_EIC_PIN;
+	config_extint_chan.filter_input_signal = true;
+	config_extint_chan.gpio_pin_mux = BUTTON_0_EIC_MUX;
+	config_extint_chan.gpio_pin_pull = EXTINT_PULL_UP;
+	config_extint_chan.detection_criteria = EXTINT_DETECT_FALLING;
+	extint_chan_set_config(BUTTON_0_EIC_LINE, &config_extint_chan);
+}void configure_extint_callbacks(void)
 {
-	static uint8_t f = 0;
-	volatile uint8_t valor;
-		
-	for(;;)
-	{
-		volatile uint8_t contador;
-		
-		do{
-			REG_ATOMICA_INICIO();			
-				contador = SemaforoCheio.contador;			
-			REG_ATOMICA_FIM();
-			
-			if (contador == 0)
-			{
-				TarefaEspera(100);
-			}
-				
-		} while (!contador);
-		
-		SemaforoAguarda(&SemaforoCheio);
-		
-		valor = buffer[f];
-		f = (f+1) % TAM_BUFFER;		
-		
-#define TEMPO_LIGADO 200 /*tempo que o led vai ficar aceso em cada nível de brilho*/
-
-		for (uint16_t pulsos = 0; pulsos<TEMPO_LIGADO; pulsos++)
-		{
-			port_pin_set_output_level(LED_0_PIN, !(pulsos%10<valor));
-			TarefaEspera(1);
-		}
-		
-		SemaforoLibera(&SemaforoVazio);
-	}
+	extint_register_callback(extint_detection_callback,
+	BUTTON_0_EIC_LINE,
+	EXTINT_CALLBACK_TYPE_DETECT);
+	extint_chan_enable_callback(BUTTON_0_EIC_LINE,
+	EXTINT_CALLBACK_TYPE_DETECT);
 }
 
-
-
-void tarefaExcessivamenteLonga(uint32_t iteracao_max)
+void extint_detection_callback(void)
 {
-	volatile uint32_t fibonacci=1, fibonacci_ant=0; 
-	for (uint32_t iteracao=0; iteracao<iteracao_max; iteracao++)
-	{
-		fibonacci+=fibonacci_ant;
-		fibonacci_ant=fibonacci;
-	}
-}
-
-uint8_t denteDeSerra(uint8_t a)
-{
-	return a%10;
-}
-
-uint8_t triangular(uint8_t a)
-{
-	uint8_t b=0;
-	if(a%20 < 10)
-	{
-		b=a%10;
-	}
-	else
-	{
-		b=10-a%10;
-	}
-	return b;
-}
+	static bool pin_state = 0; // port_pin_get_input_level(LED_0_PIN);
+	pin_state = !pin_state;
+	port_pin_set_output_level(LED_0_PIN, pin_state);
+ }
